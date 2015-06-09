@@ -2,6 +2,9 @@
 
 /**
  * This file defines the method to get database connection.
+ *
+ * @author      ritesh
+ * @version     1.0
  */
 
 // The mongoose instance.
@@ -12,8 +15,8 @@ var dbs = {};
 
 /**
  * Gets a db connection for a URL.
- * @param url the url
- * @return db connection for the given URL
+ * @param     {String}    url         the url
+ * @return    {object}                connection for the given URL
  */
 function getDb(url, poolSize) {
   if (!dbs[url]) {
@@ -29,8 +32,7 @@ function getDb(url, poolSize) {
 
 /**
  * Sets the mongoose.
- *
- * @param {Object} mongoose the mongoose instance to set
+ * @param     {Object}    mongoose    the mongoose instance to set
  */
 function setMongoose(mongoose) {
   _mongoose = mongoose;
@@ -38,8 +40,7 @@ function setMongoose(mongoose) {
 
 /**
  * Gets the mongoose.
- *
- * @return {Object} the mongoose instance
+ * @return    {Object}                the mongoose instance
  */
 function getMongoose() {
   return _mongoose;
