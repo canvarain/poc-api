@@ -15,7 +15,7 @@ var express = require('express'),
   responser = require('./middlewares/responser'),
   config = require('config');
 
-var port = process.env.PORT || config.WEB_SERVER_PORT || 3000;
+var port = process.env.PORT || config.WEB_SERVER_PORT || 3100;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));

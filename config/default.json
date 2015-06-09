@@ -1,3 +1,5 @@
 {
-    "MONGODB_URL": "mongodb://localhost:27017/sampleapp"
+    "MONGODB_URL": "mongodb://localhost:27017/billid",
+    "JWT_SECRET": "JKmYcHjwC8st472nP7kDYOnQDW5Q5uOe",
+    "WEB_SERVER_PORT": 4500
 }
