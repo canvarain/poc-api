@@ -5,7 +5,7 @@ var ReceiptSchema = require('../models/Receipt').ReceiptSchema,
   db = require('../datasource').getDb(config.MONGODB_URL),
   Receipt = db.model('Receipt', ReceiptSchema);
 
-var queues = require('./queues'),
+var queues = require('../queues'),
   queueNames = queues.names;
 
 var async = require('async');
@@ -30,14 +30,10 @@ exports.persist = function(entity, callback) {
 exports.create = function(entity, callback) {
   async.waterfall([
     function(cb) {
-      queues.publish(queueNames.receiptNotification, entity, function() {
-        cb();
-      });
+      queues.publish(queueNames.receiptNotification, entity, cb);
     },
     function(cb) {
-      queues.publish(queueNames.receiptPersist, entity, function() {
-        cb();
-      });
+      queues.publish(queueNames.receiptPersist, entity, cb);
     }
   ], callback);
 };
