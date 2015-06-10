@@ -1,5 +1,6 @@
 {
-    "MONGODB_URL": "mongodb://localhost:27017/billid",
+    "MONGODB_URL": "mongodb://localhost:27017/billidpocapi",
     "JWT_SECRET": "JKmYcHjwC8st472nP7kDYOnQDW5Q5uOe",
+    "RABBITMQ_URL": "localhost",
     "WEB_SERVER_PORT": 4500
 }
