@@ -9,8 +9,9 @@
  */
 
 var express = require('express');
-var auth = require('./middlewares/auth');
-var UserController = require('./controllers/UserController');
+var auth = require('./middlewares/Auth');
+var UserController = require('./controllers/UserController'),
+  ReceiptController = require('./controllers/ReceiptController');
 
 module.exports = function() {
   var options = {
@@ -19,5 +20,6 @@ module.exports = function() {
 
   // Instantiate an isolated express Router instance
   var router = express.Router(options);
+  router.post('/receipts', ReceiptController.create);
   return router;
 }

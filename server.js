@@ -12,15 +12,25 @@ var express = require('express'),
   bodyParser = require('body-parser'),
   router = require('./router'),
   errorHandler = require('./middlewares/ErrorHandler'),
-  responser = require('./middlewares/responser'),
+  responser = require('./middlewares/Responser'),
+  responseTransformer = require('./middlewares/ResponseTransformer'),
   config = require('config');
+
+var queues = require('./queues'),
+  subscribers = require('./subscribers');
 
 var port = process.env.PORT || config.WEB_SERVER_PORT || 3100;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(router());
+app.use(responseTransformer());
 app.use(responser());
 app.use(errorHandler());
-app.listen(port);
-console.log('Application listening on port ' + port);
+// initialize the pub/sub queues
+queues.init(function() {
+  subscribers.registerAll();
+  app.listen(port, function() {
+    console.log('Application listening on port ' + port);
+  });
+});

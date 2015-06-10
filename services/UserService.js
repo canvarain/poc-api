@@ -6,4 +6,5 @@ var UserSchema = require('../models/User').UserSchema,
   User = db.model('User', UserSchema);
 
 exports.register = function(entity, callback) {
+  
 };
