@@ -17,7 +17,7 @@ var httpStatus = require('http-status');
  * @param  {Function}   callback        entity to validate
  */
 var _validateReceipt = function(entity, callback) {
-
+  callback(null, entity);
 };
 
 /**

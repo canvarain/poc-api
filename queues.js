@@ -23,7 +23,7 @@ var names = exports.names = {
   receiptPersist: 'receiptpersist'
 };
 
-var queues = {};
+var queueList = {};
 
 var connection;
 
@@ -33,22 +33,18 @@ var connection;
  */
 var _getConnection = function(callback) {
   if(!connection) {
-    _initConnection(function() {
-      callback(null, connection);
+    connection = amqp.createConnection({ host: config.RABBITMQ_URL });
+    connection.on('ready', function() {
+      callback();
+    });
+    // add a error listener
+    connection.on('error', function(err) {
+      throw err;
     });
   } else {
-    callback(null, connection);
+    callback();
   }
 };
-
-/**
- * Initialize the connection to RabbitMQ instance
- * @param  {Function}     callback          callback function
- */
-var _initConnection = function(callback) {
-  connection = amqp.createConnection({ host: config.RABBITMQ_URL });
-  connection.on('ready', callback);
-}
 
 /**
  * Initialize. This method will initialize the following
@@ -59,21 +55,19 @@ var _initConnection = function(callback) {
 exports.init = function(callback) {
   async.waterfall([
     function(cb) {
-      _initConnection(function() {
-        _getConnection(cb);
+      _getConnection(cb);
+    },
+    function(cb) {
+      connection.queue(names.receiptNotification, function(que) {
+        que.bind('#');
+        queueList[names.receiptNotification] = que;
+        cb();
       });
     },
-    function(conn, cb) {
-      conn.queue(names.receiptNotification, function(que) {
+    function(cb) {
+      connection.queue(names.receiptPersist, function(que) {
         que.bind('#');
-        queues[names.receiptNotification] = que;
-        cb(null, conn);
-      });
-    },
-    function(conn, cb) {
-      conn.queue(names.receiptPersist, function(que) {
-        que.bind('#');
-        queues[names.receiptPersist];
+        queueList[names.receiptPersist] = que;
         cb();
       });
     }
@@ -88,15 +82,17 @@ exports.init = function(callback) {
  * @param  {Function}     callback          callback function
  */
 exports.publish = function(queueName, body, callback) {
-  if(!names[queueName]) {
-    return callback(new errors.ArgumentError('queueName'));
+  if(queueName === names.receiptPersist || queueName === names.receiptNotification) {
+    _getConnection(function(err) {
+      if(err) {
+        return callback(err);
+      }
+      connection.publish(queueName, body);
+      callback();
+    });
+  } else {
+    callback(new errors.ArgumentError('queueName'));
   }
-  _getConnection(function(err, conn) {
-    if(err) {
-      return callback(err);
-    }
-    conn.publish(queueName, body, callback);
-  });
 };
 
 /**
@@ -106,10 +102,13 @@ exports.publish = function(queueName, body, callback) {
  * @param  {Function}     callback          callback function
  */
 exports.subscribe = function(queueName, callback) {
-  if(!names[queueName]) {
-    return callback(new errors.ArgumentError('queueName'));
+  if(queueName === names.receiptPersist || queueName === names.receiptNotification) {
+    var que = queueList[queueName];
+    if(!que) {
+      return callback(new errors.ReferenceError('queue not found for name' + queueName));
+    }
+    que.subscribe(callback);
+  } else {
+    throw new errors.ArgumentError('queueName');
   }
-  var que = queues[queueName];
-  que.subscribe(callback);
 };
-

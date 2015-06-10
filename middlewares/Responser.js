@@ -17,7 +17,7 @@ var middleware = function(req, res, next) {
   if(req.data && req.data.content) {
     res.status(req.data.statusCode || httpStatus.OK).json(req.data.content);
   } else {
-    res.status((req.data && req.data.statusCode) ? req.data.statusCode : httpStatus.NO_CONTENT);
+    res.status((req.data && req.data.statusCode) ? req.data.statusCode : httpStatus.NO_CONTENT).send();
   }
 }
 

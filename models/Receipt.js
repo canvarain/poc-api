@@ -19,7 +19,7 @@ var ReceiptSchema = new Schema({
   amount: { type: Number, required: true },
   type: { type: String, required: true, enum: ['purchase', 'return'] },
   userId: { type: String, required: true },
-  items: { type: Mixed, required: true }
+  items: { type: Schema.Types.Mixed, required: true }
 });
 
 /**
