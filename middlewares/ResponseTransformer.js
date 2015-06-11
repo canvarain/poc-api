@@ -18,14 +18,13 @@ var _doFilter = function(obj) {
   var transformed;
   if(obj.toObject) {
     transformed = obj.toObject();
+  } else {
+    transformed = obj;
   }
   if(obj._id) {
     transformed.id = obj._id;
   }
-  delete transformed._id;
-  delete transformed.__v;
-  delete transformed.password;
-  return transformed;
+  return _.omit(transformed, '_id', '__v', 'password');
 };
 
 var middleware = function(req, res, next) {
