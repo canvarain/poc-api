@@ -10,6 +10,12 @@ var bcrypt = require('bcrypt-nodejs'),
   async = require('async'),
   config = require('config');
 
+exports.userTypes = {
+  staff: 'staff',
+  customer: 'customer',
+  both: 'both'
+};
+
 /**
  * Generate a hash of the given plainText string
  *
