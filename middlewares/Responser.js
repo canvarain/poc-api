@@ -14,13 +14,17 @@
 var httpStatus = require('http-status');
 
 var middleware = function(req, res, next) {
-  if(req.data && req.data.content) {
+  if(!req.data) {
+    // if no data is available call next.
+    return next();
+  }
+  if(req.data.content) {
     res.status(req.data.statusCode || httpStatus.OK).json(req.data.content);
   } else {
-    res.status((req.data && req.data.statusCode) ? req.data.statusCode : httpStatus.NO_CONTENT).send();
+    res.status(req.data.statusCode || httpStatus.NO_CONTENT).send();
   }
-}
+};
 
 module.exports = function() {
   return middleware;
-}
+};

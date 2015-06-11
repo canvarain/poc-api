@@ -1,7 +1,15 @@
 'use strict';
 
+/**
+ * This Service exposes the contract with the 'receipts' collection in the database
+ *
+ * @author      ritesh
+ * @version     1.0
+ */
+
 var ReceiptSchema = require('../models/Receipt').ReceiptSchema,
   config = require('config'),
+  errors = require('common-errors'),
   db = require('../datasource').getDb(config.MONGODB_URL),
   Receipt = db.model('Receipt', ReceiptSchema);
 
@@ -9,13 +17,6 @@ var queues = require('../queues'),
   queueNames = queues.names;
 
 var async = require('async');
-
-/**
- * This Service exposes the contract with the 'receipts' collection in the database
- *
- * @author      ritesh
- * @version     1.0
- */
 
 /**
  * Persist the given entity into the database
@@ -27,13 +28,17 @@ exports.persist = function(entity, callback) {
   Receipt.create(entity, callback);
 };
 
-exports.create = function(entity, callback) {
+exports.create = function(entity, auth, callback) {
+  var message = {
+    auth: auth,
+    entity: entity
+  };
   async.waterfall([
     function(cb) {
-      queues.publish(queueNames.receiptNotification, entity, cb);
+      queues.publish(queueNames.receiptNotification, message, cb);
     },
     function(cb) {
-      queues.publish(queueNames.receiptPersist, entity, cb);
+      queues.publish(queueNames.receiptPersist, message, cb);
     }
   ], callback);
 };
@@ -44,7 +49,8 @@ exports.create = function(entity, callback) {
  * @param  {Function}     callback        callback function
  */
 exports.listByOrganization = function(auth, callback) {
-
+  var query = Receipt.where({ orgId: auth.orgId });
+  query.find(callback);
 };
 
 /**
@@ -53,5 +59,23 @@ exports.listByOrganization = function(auth, callback) {
  * @param  {Function}     callback        callback function
  */
 exports.listByUser = function(auth, callback) {
+  var query = Receipt.where({ userId: auth.userId });
+  query.find(callback);
+};
 
+/**
+ * Get a receipt by id
+ * @param  {String}       id              id of the receipt to get
+ * @param  {Function}     callback        callback function
+ */
+exports.findById = function(id, callback) {
+  Receipt.findById(id, function(err, receipt) {
+    if(err) {
+      callback(err);
+    } else if(!receipt) {
+      callback(new errors.NotFoundError('Receipt not found for given id'));
+    } else {
+      callback(null, receipt);
+    }
+  });
 };

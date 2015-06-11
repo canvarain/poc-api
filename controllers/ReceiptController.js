@@ -32,7 +32,7 @@ exports.create = function(req, res, next) {
       _validateReceipt(req.body, cb);
     },
     function(entity, cb) {
-      receiptService.create(entity, cb);
+      receiptService.create(entity, req.auth, cb);
     }
   ], function(err) {
     if(err) {
@@ -74,6 +74,26 @@ exports.listByOrganization = function(req, res, next) {
  */
 exports.listByUser = function(req, res, next) {
   receiptService.listByUser(req.auth, function(err, content) {
+    if(err) {
+      return next(err);
+    }
+    req.data = {
+      statusCode: httpStatus.OK,
+      content: content
+    };
+    next();
+  });
+};
+
+/**
+ * Route handler for GET '/receipts/:id' ENDPOINT
+ * Get all receipts for current loggedin user
+ * @param  {Object}     req       Express request instance
+ * @param  {Object}     res       Express response instance
+ * @param  {Function}   next      next function to call next middleware in chain
+ */
+exports.get = function(req, res, next) {
+  receiptService.findById(req.params.id, function(err, content) {
     if(err) {
       return next(err);
     }

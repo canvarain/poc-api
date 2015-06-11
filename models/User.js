@@ -14,10 +14,10 @@ var mongoose = require('../datasource').getMongoose(),
   Schema = mongoose.Schema;
 
 var UserSchema = new Schema({
-  title: { type: String, required: true, enum: [] },
+  title: { type: String, required: true, enum: ['Mr', 'Ms', 'Mrs', 'Miss', 'Dr', 'Prof', 'Rev', 'Sir', 'Other'] },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
-  mobileNumber: Number,
+  mobileNumber: String,
   countryCode: String,
   email: String,
   type: { type: String, required: true, enum: ['staff', 'customer', 'both'] },

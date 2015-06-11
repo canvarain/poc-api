@@ -14,7 +14,7 @@ var mongoose = require('../datasource').getMongoose(),
 
 var ReceiptSchema = new Schema({
   orgId: { type: String, required: true },
-  staff: { type: String, required: true },
+  staffId: { type: String, required: true },
   storeId: { type: String, required: true },
   amount: { type: Number, required: true },
   type: { type: String, required: true, enum: ['purchase', 'return'] },
