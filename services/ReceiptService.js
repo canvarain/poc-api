@@ -14,6 +14,7 @@ var ReceiptSchema = require('../models/Receipt').ReceiptSchema,
   Receipt = db.model('Receipt', ReceiptSchema);
 
 var queues = require('../queues'),
+  userTypes = require('./Helper').userTypes,
   queueNames = queues.names;
 
 var async = require('async');
@@ -28,12 +29,32 @@ exports.persist = function(entity, callback) {
   Receipt.create(entity, callback);
 };
 
+/**
+ * Create a receipt.
+ * The following operations are performed
+ * 1. Authorize the user who is creating the receipt
+ * 2. Publish the entity body to receiptNotification queue
+ * 3. Publish the entity body to receiptPersist queue
+ * The consumers will take the message from each queue and then process it.
+ * Response to the client will be returned immediately after publishing to the queues
+ *
+ * @param  {Object}       entity            entity from client to create
+ * @param  {[type]}       auth              authentication context for the current request
+ * @param  {Function}     callback          callback function
+ */
 exports.create = function(entity, auth, callback) {
   var message = {
     auth: auth,
     entity: entity
   };
   async.waterfall([
+    function(cb) {
+      if(!auth.orgId || auth.type === userTypes.customer) {
+        cb(new errors.NotPermittedError('User is not allowed to perform this operation'));
+      } else {
+        cb();
+      }
+    },
     function(cb) {
       queues.publish(queueNames.receiptNotification, message, cb);
     },

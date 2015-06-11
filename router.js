@@ -10,8 +10,9 @@
 
 var express = require('express');
 var auth = require('./middlewares/Auth');
-var UserController = require('./controllers/UserController'),
-  ReceiptController = require('./controllers/ReceiptController');
+var userController = require('./controllers/UserController'),
+  organizationController = require('./controllers/OrganizationController'),
+  receiptController = require('./controllers/ReceiptController');
 
 module.exports = function() {
   var options = {
@@ -21,15 +22,18 @@ module.exports = function() {
   // Instantiate an isolated express Router instance
   var router = express.Router(options);
   // users
-  router.post('/users', UserController.create);
-  router.post('/users/login', UserController.login);
+  router.post('/users', userController.create);
+  router.post('/users/login', userController.login);
   // me
-  router.get('/me/receipts', auth(), ReceiptController.listByUser);
-  router.get('/me', auth(), UserController.me);
+  router.get('/me/receipts', auth(), receiptController.listByUser);
+  router.get('/me', auth(), userController.me);
 
   // receipts
-  router.post('/receipts', auth(), ReceiptController.create);
-  router.get('/receipts', auth(), ReceiptController.listByOrganization);
-  router.get('/receipts/:id', auth(), ReceiptController.get);
+  router.post('/receipts', auth(), receiptController.create);
+  router.get('/receipts', auth(), receiptController.listByOrganization);
+  router.get('/receipts/:id', auth(), receiptController.get);
+
+  // organizations
+  router.post('/organizations', auth(), organizationController.create);
   return router;
 };
