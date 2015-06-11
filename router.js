@@ -20,6 +20,16 @@ module.exports = function() {
 
   // Instantiate an isolated express Router instance
   var router = express.Router(options);
-  router.post('/receipts', ReceiptController.create);
+  // users
+  router.post('/users', UserController.create);
+  router.post('/users/login', UserController.login);
+  // me
+  router.get('/me/receipts', auth(), ReceiptController.listByUser);
+  router.get('/me', auth(), UserController.me);
+
+  // receipts
+  router.post('/receipts', auth(), ReceiptController.create);
+  router.get('/receipts', auth(), ReceiptController.listByOrganization);
+  router.get('/receipts/:id', auth(), ReceiptController.get);
   return router;
-}
+};

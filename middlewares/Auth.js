@@ -14,7 +14,7 @@ var errors = require('common-errors');
 
 var jwt = require('jwt-simple'),
   moment = require('moment'),
-  _ = require('lodash'),
+  jwt = require('jwt-simple'),
   config = require('config');
 
 var authorizationTypes = {
@@ -34,12 +34,12 @@ var middleware = function(req, res, next) {
     if(req.auth.expiration > moment().valueOf()) {
       return next();
     }
-    next(new errors.AuthenticationRequiredError("Authorization token is expired"));
+    next(new errors.AuthenticationRequiredError('Authorization token is expired'));
   } else {
-    next(new errors.AuthenticationRequiredError("Missing authorization header"));
+    next(new errors.AuthenticationRequiredError('Missing authorization header'));
   }
 };
 
 module.exports = function() {
   return middleware;
-}
+};
