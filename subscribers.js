@@ -19,7 +19,7 @@ var receiptService = require('./services/ReceiptService'),
   config = require('config'),
   userService = require('./services/UserService');
 
-var googleApiKey = config.util.getEnv(config.GOOGLE_API_KEY_VARIABLE_NAME);
+var googleApiKey = config.GOOGLE_API_KEY;
 var sender = new gcm.Sender(googleApiKey);
 
 /**
