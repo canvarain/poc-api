@@ -14,7 +14,7 @@
   },
   "homepage": "https://github.com/billidin/poc-api",
   "dependencies": {
-    "amqp": "^0.2.4",
+    "amqplib": "^0.3.2",
     "async": "^1.2.1",
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.10.2",
