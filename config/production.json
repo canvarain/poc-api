@@ -1,4 +1,0 @@
-{
-    "MONGODB_URL": "mongodb://heroku_7zp86fck:3l5dt81q57el63o4m2bnohjt2b@ds039311.mongolab.com:39311/heroku_7zp86fck",
-    "RABBITMQ_URL": "amqp://elqcvgsv:VMadaqW8JGkyUUFZzVA7XBmNSTZtX5_F@bunny.cloudamqp.com/elqcvgsv"
-}
