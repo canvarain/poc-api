@@ -11,6 +11,7 @@ var express = require('express'),
   app = express(),
   bodyParser = require('body-parser'),
   router = require('./router'),
+  winston = require('winston'),
   errorHandler = require('./middlewares/ErrorHandler'),
   responser = require('./middlewares/Responser'),
   responseTransformer = require('./middlewares/ResponseTransformer'),
@@ -30,7 +31,6 @@ app.use(errorHandler());
 // initialize the pub/sub queues
 queues.init(function() {
   subscribers.registerAll();
-  app.listen(port, function() {
-    console.log('Application listening on port ' + port);
-  });
+  app.listen(port);
+  winston.info('Application listening on port ' + port)
 });
