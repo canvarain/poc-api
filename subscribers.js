@@ -37,7 +37,7 @@ var _receiptNotificationHandler = function(message) {
  * @param   {Function}    callback        callback function
  */
 var _sendNotification = function(user, receipt, callback) {
-  var message = new gcm.message();
+  var message = new gcm.Message();
   message.addData({
     title: 'Transaction Receipt',
     body: 'Your transaction receipt for amount ' + receipt.amount,
@@ -47,7 +47,7 @@ var _sendNotification = function(user, receipt, callback) {
       receiptId: receipt._id
     }
   });
-  sender.send(message, user.deviceId, config.MAX_SEND_RETRY_COUNT, callback);
+  sender.send(message, user.deviceId || [], config.MAX_SEND_RETRY_COUNT, callback);
 };
 
 /**
@@ -56,8 +56,10 @@ var _sendNotification = function(user, receipt, callback) {
  * @param   {Object}      message         message that is published
  */
 var _receiptPersistHandler = function(message) {
-  var authInfo = message.auth;
-  var entity = message.entity;
+  // parse the message content
+  var messageContent = JSON.parse(message.content.toString());
+  var authInfo = messageContent.auth;
+  var entity = messageContent.entity;
   entity.orgId = authInfo.orgId;
   // receipts can only be created by the authorized staff of the organization
   // so the loggedin userId is the staffId who generated the receipt

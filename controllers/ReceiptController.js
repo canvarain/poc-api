@@ -10,6 +10,7 @@
 var async = require('async');
 var receiptService = require('../services/ReceiptService');
 var httpStatus = require('http-status');
+var controllerHelper = require('./ControllerHelper');
 
 /**
  * Validate the given entity to be a valid receipt schema data
@@ -17,7 +18,9 @@ var httpStatus = require('http-status');
  * @param  {Function}   callback        entity to validate
  */
 var _validateReceipt = function(entity, callback) {
-  callback(null, entity);
+  var err = controllerHelper.checkString(entity.mobileNumber, 'Mobile Number') || controllerHelper.checkString(entity.countryCode, 'Country Code')
+              || controllerHelper.checkString(entity.type, 'type');
+  callback(err, entity);
 };
 
 /**
