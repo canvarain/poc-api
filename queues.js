@@ -38,6 +38,7 @@ var _getConnection = function(callback) {
         throw err;
       }
       connection = conn;
+      callback();
     });
   } else {
     callback();
@@ -63,6 +64,7 @@ exports.init = function(callback) {
           chn.assertQueue(names.receiptNotification);
           chn.assertQueue(names.receiptPersist);
           channel = chn;
+          cb();
         }
       });
     }
@@ -79,7 +81,7 @@ exports.init = function(callback) {
 exports.publish = function(queueName, body, callback) {
   if(queueName === names.receiptPersist || queueName === names.receiptNotification) {
     channel.assertQueue(queueName);
-    channel.sendToQueue(queueName, body);
+    channel.sendToQueue(queueName, new Buffer(JSON.stringify(body)));
     callback();
   } else {
     callback(new errors.ArgumentError('queueName'));
