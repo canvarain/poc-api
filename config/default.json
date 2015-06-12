@@ -1,7 +1,7 @@
 {
     "MONGODB_URL": "mongodb://localhost:27017/billidpocapi",
     "JWT_SECRET": "JKmYcHjwC8st472nP7kDYOnQDW5Q5uOe",
-    "RABBITMQ_URL": "localhost",
+    "RABBITMQ_URL": "amqp://localhost",
     "MAX_SEND_RETRY_COUNT": 10,
     "SALT_WORK_FACTOR": 10,
     "TOKEN_EXPIRATION_IN_MILLIS": 72000000,

@@ -13,7 +13,7 @@
  * @version     1.0
  */
 
-var amqp = require('amqp'),
+var amqp = require('amqplib/callback_api'),
   async = require('async'),
   errors = require('common-errors'),
   config = require('config');
@@ -23,7 +23,7 @@ var names = exports.names = {
   receiptPersist: 'receiptpersist'
 };
 
-var queueList = {};
+var channel;
 
 var connection;
 
@@ -33,13 +33,11 @@ var connection;
  */
 var _getConnection = function(callback) {
   if(!connection) {
-    connection = amqp.createConnection({ host: config.RABBITMQ_URL });
-    connection.on('ready', function() {
-      callback();
-    });
-    // add a error listener
-    connection.on('error', function(err) {
-      throw err;
+    amqp.connect(config.RABBITMQ_URL, function(err, conn) {
+      if(err) {
+        throw err;
+      }
+      connection = conn;
     });
   } else {
     callback();
@@ -58,17 +56,14 @@ exports.init = function(callback) {
       _getConnection(cb);
     },
     function(cb) {
-      connection.queue(names.receiptNotification, function(que) {
-        que.bind('#');
-        queueList[names.receiptNotification] = que;
-        cb();
-      });
-    },
-    function(cb) {
-      connection.queue(names.receiptPersist, function(que) {
-        que.bind('#');
-        queueList[names.receiptPersist] = que;
-        cb();
+      connection.createChannel(function(err, chn) {
+        if(err) {
+          cb(err);
+        } else {
+          chn.assertQueue(names.receiptNotification);
+          chn.assertQueue(names.receiptPersist);
+          channel = chn;
+        }
       });
     }
   ], callback);
@@ -83,13 +78,9 @@ exports.init = function(callback) {
  */
 exports.publish = function(queueName, body, callback) {
   if(queueName === names.receiptPersist || queueName === names.receiptNotification) {
-    _getConnection(function(err) {
-      if(err) {
-        return callback(err);
-      }
-      connection.publish(queueName, body);
-      callback();
-    });
+    channel.assertQueue(queueName);
+    channel.sendToQueue(queueName, body);
+    callback();
   } else {
     callback(new errors.ArgumentError('queueName'));
   }
@@ -103,11 +94,11 @@ exports.publish = function(queueName, body, callback) {
  */
 exports.subscribe = function(queueName, callback) {
   if(queueName === names.receiptPersist || queueName === names.receiptNotification) {
-    var que = queueList[queueName];
-    if(!que) {
-      return callback(new errors.ReferenceError('queue not found for name' + queueName));
-    }
-    que.subscribe(callback);
+    channel.assertQueue(queueName);
+    channel.consume(queueName, function(message) {
+      channel.ack(message);
+      callback(message);
+    });
   } else {
     throw new errors.ArgumentError('queueName');
   }
