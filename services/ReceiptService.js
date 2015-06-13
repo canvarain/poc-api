@@ -70,8 +70,7 @@ exports.create = function(entity, auth, callback) {
  * @param  {Function}     callback        callback function
  */
 exports.listByOrganization = function(auth, callback) {
-  var query = Receipt.where({ orgId: auth.orgId });
-  query.find(callback);
+  Receipt.find({ orgId: auth.orgId }, callback);
 };
 
 /**
@@ -80,8 +79,7 @@ exports.listByOrganization = function(auth, callback) {
  * @param  {Function}     callback        callback function
  */
 exports.listByUser = function(auth, callback) {
-  var query = Receipt.where({ userId: auth.userId });
-  query.find(callback);
+  Receipt.find({userId: auth.userId}, callback);
 };
 
 /**
