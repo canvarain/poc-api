@@ -56,13 +56,13 @@ exports.create = function(req, res, next) {
  * @param  {Function}   next      next function to call next middleware in chain
  */
 exports.listByOrganization = function(req, res, next) {
-  receiptService.listByOrganization(req.auth, function(err, content) {
+  receiptService.listByOrganization(req.auth, function(err, data) {
     if(err) {
       return next(err);
     }
     req.data = {
       statusCode: httpStatus.OK,
-      content: content
+      content: data
     };
     next();
   });
@@ -76,13 +76,13 @@ exports.listByOrganization = function(req, res, next) {
  * @param  {Function}   next      next function to call next middleware in chain
  */
 exports.listByUser = function(req, res, next) {
-  receiptService.listByUser(req.auth, function(err, content) {
+  receiptService.listByUser(req.auth, function(err, data) {
     if(err) {
       return next(err);
     }
     req.data = {
       statusCode: httpStatus.OK,
-      content: content
+      content: data
     };
     next();
   });

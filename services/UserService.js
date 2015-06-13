@@ -121,3 +121,62 @@ exports.create = function(entity, callback) {
 exports.me = function(auth, callback) {
   User.findById(auth.userId, callback);
 };
+
+/**
+ * Update a device registration id for a user
+ * After this operation a user will be able to receive push notifications for the digital receipts
+ * @param  {String}       id              id of the user
+ * @param  {Object}       auth            current authentication context
+ * @param  {Object}       entity          client request entity
+ * @param  {Function}     callback        callback funtion
+ */
+exports.updateDevice = function(id, auth, entity, callback) {
+  if(auth.userId !== id) {
+    callback(new error.NotPermittedError('User should update his own device id'));
+  }
+  async.waterfall([
+    function(cb) {
+      User.findById(id, cb);
+    },
+    function(user, cb) {
+      if(user) {
+        _.extend(user, {deviceId: entity.deviceId});
+        user.save(function(err) {
+          cb(err);
+        });
+      } else {
+        cb(new errors.NotFoundError('User not found for given user id'));
+      }
+    }
+  ], callback);
+};
+
+
+/**
+ * Remove a device registration id for a user
+ * After this operation a user wil not receive any push notificaiton from the server
+ * @param  {String}       id              id of the user
+ * @param  {Object}       auth            current authentication context
+ * @param  {Object}       entity          client request entity
+ * @param  {Function}     callback        callback funtion
+ */
+exports.removeDevice = function(id, auth, entity, callback) {
+  if(auth.userId !== id) {
+    callback(new error.NotPermittedError('User should update his own device id'));
+  }
+  async.waterfall([
+    function(cb) {
+      User.findById(id, cb);
+    },
+    function(user, cb) {
+      if(user) {
+        _.extend(user, {deviceId: undefined});
+        user.save(function(err) {
+          cb(err);
+        });
+      } else {
+        cb(new errors.NotFoundError('User not found for given user id'));
+      }
+    }
+  ], callback);
+};

@@ -14,7 +14,7 @@
 var _ = require('lodash'),
   async = require('async');
 
-var _doFilter = function(obj) {
+var _transform = function(obj) {
   var transformed;
   if(obj.toObject) {
     transformed = obj.toObject();
@@ -27,6 +27,11 @@ var _doFilter = function(obj) {
   return _.omit(transformed, '_id', '__v', 'password');
 };
 
+var _doFilter = function(obj, callback) {
+  var transformed = _transform(obj);
+  callback(null, transformed);
+};
+
 var middleware = function(req, res, next) {
   if(req.data && req.data.content) {
     if(_.isArray(req.data.content)) {
@@ -36,7 +41,7 @@ var middleware = function(req, res, next) {
         next();
       });
     } else if(_.isObject(req.data.content)) {
-      var transformed = _doFilter(req.data.content);
+      var transformed = _transform(req.data.content);
       delete req.data.content;
       req.data.content = transformed;
       next();

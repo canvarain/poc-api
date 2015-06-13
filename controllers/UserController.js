@@ -10,6 +10,7 @@
 
 var userService = require('../services/UserService'),
   httpStatus = require('http-status'),
+  controllerHelper = require('./ControllerHelper'),
   async = require('async');
 
 /**
@@ -79,6 +80,52 @@ exports.me = function(req, res, next) {
     req.data = {
       statusCode: httpStatus.OK,
       content: user
+    };
+    next();
+  });
+};
+
+/**
+ * Route handler for POST '/users/:id/updateDevice' endpoint
+ * @param  {Object}     req       Express request instance
+ * @param  {Object}     res       Express response instance
+ * @param  {Function}   next      next function to call next middleware in chain
+ */
+exports.updateDevice = function(req, res, next) {
+  var entity = req.body;
+  var error = controllerHelper.checkDefined(entity, 'Entity') || controllerHelper.checkString(entity.deviceId, 'Device id');
+  if(error) {
+    return next(error);
+  }
+  userService.updateDevice(req.params.id, req.auth, entity, function(err) {
+    if(err) {
+      return next(err);
+    }
+    req.data = {
+      statusCode: httpStatus.OK
+    };
+    next();
+  });
+};
+
+/**
+ * Route handler for POST '/users/:id/removeDevice' endpoint
+ * @param  {Object}     req       Express request instance
+ * @param  {Object}     res       Express response instance
+ * @param  {Function}   next      next function to call next middleware in chain
+ */
+exports.removeDevice = function(req, res, next) {
+  var entity = req.body;
+  var error = controllerHelper.checkDefined(entity, 'Entity') || controllerHelper.checkString(entity.deviceId, 'Device id');
+  if(error) {
+    return next(error);
+  }
+  userService.removeDevice(req.params.id, req.auth, entity, function(err) {
+    if(err) {
+      return next(err);
+    }
+    req.data = {
+      statusCode: httpStatus.OK
     };
     next();
   });
