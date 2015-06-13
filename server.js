@@ -12,6 +12,7 @@ var express = require('express'),
   bodyParser = require('body-parser'),
   router = require('./router'),
   winston = require('winston'),
+  cors = require('cors')
   errorHandler = require('./middlewares/ErrorHandler'),
   responser = require('./middlewares/Responser'),
   responseTransformer = require('./middlewares/ResponseTransformer'),
@@ -21,7 +22,7 @@ var queues = require('./queues'),
   subscribers = require('./subscribers');
 
 var port = process.env.PORT || config.WEB_SERVER_PORT || 3100;
-
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(router());
