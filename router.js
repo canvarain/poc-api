@@ -24,6 +24,8 @@ module.exports = function() {
   // users
   router.post('/users', userController.create);
   router.post('/users/login', userController.login);
+  router.post('/users/:id/updateDevice', auth(), userController.updateDevice);
+  router.post('/users/:id/removeDevice', auth(), userController.removeDevice);
   // me
   router.get('/me/receipts', auth(), receiptController.listByUser);
   router.get('/me', auth(), userController.me);
