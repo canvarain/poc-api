@@ -11,13 +11,17 @@ var ReceiptSchema = require('../models/Receipt').ReceiptSchema,
   config = require('config'),
   errors = require('common-errors'),
   db = require('../datasource').getDb(config.MONGODB_URL),
+  organizationService = require('./OrganizationService'),
+  userService = require('./UserService'),
   Receipt = db.model('Receipt', ReceiptSchema);
 
 var queues = require('../queues'),
   userTypes = require('./Helper').userTypes,
+  helper = require('./Helper'),
   queueNames = queues.names;
 
-var async = require('async');
+var async = require('async'),
+  _ = require('lodash');
 
 /**
  * Persist the given entity into the database
@@ -74,12 +78,44 @@ exports.listByOrganization = function(auth, callback) {
 };
 
 /**
+ * Expand the receipt object by populating the referenced entities
+ * @param  {Object}       receipt         receipt to expand
+ * @param  {Function}     callback        callback function
+ */
+var _expandReceipt = function(receipt, callback) {
+  var transformed = helper.filterObject(receipt);
+  async.waterfall([
+    function(cb) {
+      userService.findById(receipt.staffId, cb);
+    },
+    function(user, cb) {
+      var transformedUser = helper.filterObject(user);
+      _.extend(transformed, { staff: transformedUser });
+      organizationService.findById(receipt.orgId, cb);
+    },
+    function(organization, cb) {
+      var transformedOrganization = helper.filterObject(organization);
+      _.extend(transformed, { organization: transformedOrganization });
+      cb(null, transformed);
+    }
+  ], callback);
+};
+
+/**
  * List all the receipts for the current loggedin user
  * @param  {Object}       auth            authentication context for the current request
  * @param  {Function}     callback        callback function
  */
 exports.listByUser = function(auth, callback) {
-  Receipt.find({userId: auth.userId}, callback);
+  async.waterfall([
+    function(cb) {
+      Receipt.find({userId: auth.userId}, cb);
+    },
+    function(receipts, cb) {
+      async.map(receipts, _expandReceipt, cb);
+    }
+  ], callback);
+
 };
 
 /**
@@ -94,7 +130,9 @@ exports.findById = function(id, callback) {
     } else if(!receipt) {
       callback(new errors.NotFoundError('Receipt not found for given id'));
     } else {
-      callback(null, receipt);
+      _expandReceipt(receipt, function(err, expanded) {
+        callback(err, expanded);
+      });
     }
   });
 };

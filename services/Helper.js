@@ -7,6 +7,7 @@
  */
 
 var bcrypt = require('bcrypt-nodejs'),
+  _ = require('lodash'),
   async = require('async'),
   config = require('config');
 
@@ -31,4 +32,22 @@ exports.generateHash = function(plainText, callback) {
       bcrypt.hash(plainText, salt, null, cb);
     }
   ], callback);
+};
+
+/**
+ * Filter the given mongoose schema instance to valid javascript object.
+ * This will remove the unwanted properties
+ * @param  {Object}       obj              object to filter
+ */
+exports.filterObject = function(obj) {
+  var transformed;
+  if(obj.toObject) {
+    transformed = obj.toObject();
+  } else {
+    transformed = obj;
+  }
+  if(obj._id) {
+    transformed.id = obj._id;
+  }
+  return _.omit(transformed, '_id', '__v', 'password');
 };

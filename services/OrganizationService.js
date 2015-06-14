@@ -22,3 +22,20 @@ var OrganizationSchema = require('../models/Organization').OrganizationSchema,
 exports.create = function(entity, auth, callback) {
   Organization.create(entity, callback);
 };
+
+/**
+ * Get a organization by id
+ * @param  {String}       id              id of the organization to get
+ * @param  {Function}     callback        callback function
+ */
+exports.findById = function(id, callback) {
+  Organization.findById(id, function(err, organization) {
+    if(err) {
+      callback(err);
+    } else if(!organization) {
+      callback(new errors.NotFoundError('Organization not found for given id'));
+    } else {
+      callback(null, organization);
+    }
+  });
+};

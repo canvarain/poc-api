@@ -180,3 +180,20 @@ exports.removeDevice = function(id, auth, entity, callback) {
     }
   ], callback);
 };
+
+/**
+ * Get a user by id
+ * @param  {String}       id              id of the user to get
+ * @param  {Function}     callback        callback function
+ */
+exports.findById = function(id, callback) {
+  User.findById(id, function(err, user) {
+    if(err) {
+      callback(err);
+    } else if(!user) {
+      callback(new errors.NotFoundError('user not found for given id'));
+    } else {
+      callback(null, user);
+    }
+  });
+};
