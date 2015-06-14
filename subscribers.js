@@ -67,6 +67,9 @@ var _receiptPersistHandler = function(message) {
       userService.getByMobileNumberAndCountryCode(entity.mobileNumber, entity.countryCode, cb);
     },
     function(user, cb) {
+      if(!user) {
+        cb(new errors.NotFoundError('User not found with given mobile number'));
+      }
       // delete the mobile number and country code from the entity
       delete entity.mobileNumber;
       delete entity.countryCode;
