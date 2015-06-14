@@ -38,14 +38,12 @@ var _receiptNotificationHandler = function(message) {
  */
 var _sendNotification = function(user, receipt, callback) {
   var message = new gcm.Message();
-  message.addData({
-    title: 'Transaction Receipt',
-    body: 'Your transaction receipt for amount ' + receipt.amount,
-    icon: 'billid-notification-icon.png',
-    sound: 'billidnotification.wav',
-    data: {
-      receiptId: receipt._id
-    }
+  message.addData('title', 'Transaction Receipt');
+  message.addData('message', 'Your transaction receipt for amount ' + receipt.amount);
+  message.addData('icon', 'billid-notification-icon.png');
+  message.addData('sound', 'billidnotification.wav');
+  message.addData('data', {
+    receiptId: receipt._id
   });
   sender.send(message, user.deviceId || [], config.MAX_SEND_RETRY_COUNT, callback);
 };
